@@ -1,17 +1,16 @@
-#' @name mcmc.GP
+#' @name CensSpBayes
 #' @title Function to run MCMC for left censored massive spatial data
 #'
 #' @description
 #' Generate posterior samples for the parameters in the model and predictions of the true process at the prediction locations with pointwise variances for them
 #'
-#' @usage mcmc.GP(Y, S, X, cutoff.Y, S.pred, X.pred, inla.mats, alpha = 2,
+#' @usage CensSpBayes(Y, S, X, cutoff.Y, S.pred, X.pred, inla.mats, alpha = 2,
 #'                theta.init = NULL, latent.init = NULL, tau.init = NULL,
 #'                rho.init = 0.5, r.init = NULL,
 #'                jitter=0,
 #'                mean.theta = 0, sd.theta = 1e2,
 #'                tau.a = 0.1, tau.b = 0.1,
 #'                rho.upper = NULL,
-#'                warmstart = TRUE,
 #'                iters = 4000, burn = 2000, thin = 5)
 #'
 #' @param Y vector of observations
@@ -33,28 +32,24 @@
 #' @param tau.a hyperparameter corresponding to the shape of the inverse gamma prior for tau
 #' @param tau.b hyperparameter corresponding to the rate of the inverse gamma prior for tau
 #' @param rho.upper hyperparameter corresponding to the upper limit of the uniform prior for rho. Recommend use no more than 0.25*maximum distance of the domain
-#' @param warmstart logical, indicating whether to use a variogram fit to the non-censored data to get initial values for the parameters
 #' @param iters number of posterior samples to be drawn
 #' @param burn number of posterior samples to be discarded as burn-in period samples
 #' @param thin thinning interval. The toatl number of iterations is thin*iters
 #'
 #' @import stats
 #' @import spam
-#' @import gstat
-#' @import sp
 #'
 #' @return a list of posterior samples for theta, tau, rho and r. Additionally, includes the posterior mean and variances of the latent process and the predicted process, and the computation time in minutes
 #' @export
 
-mcmc.GP <- function(Y, S, X, cutoff.Y, S.pred, X.pred, inla.mats, alpha = 2,
+CensSpBayes <- function(Y, S, X, cutoff.Y, S.pred, X.pred, inla.mats, alpha = 2,
                     theta.init = NULL, latent.init = NULL, tau.init = NULL,
                     rho.init = 0.5, r.init = NULL,
-		    jitter=0,
+		                jitter=0,
                     # priors
                     mean.theta = 0, sd.theta = 1e2,
                     tau.a = 0.1, tau.b = 0.1,
                     rho.upper = NULL,
-		    warmstart = TRUE,
                     # mcmc settings
                     iters = 4000, burn = 2000, thin = 5){
 
@@ -98,18 +93,6 @@ mcmc.GP <- function(Y, S, X, cutoff.Y, S.pred, X.pred, inla.mats, alpha = 2,
   rho <- rho.init
   if(is.null(rho.upper)){rho.upper <- Inf}
 
-  if(warmstart){
-	ncensind <- which(Y > cutoff.Y)
-	Z <- Y
-	dd <- data.frame(z=Z[ncensind],x=S[ncensind,1],y=S[ncensind,2],cov=X[ncensind,])
-	sp::coordinates(dd) = ~x+y
-	vv <- gstat::variogram(as.formula(paste("z~0+",paste(names(dd)[-1],collapse="+"))),dd)
-	ngt <- vv$gamma[1] - ((vv$gamma[2]-vv$gamma[1])*(vv$dist[1])/(vv$dist[2]-vv$dist[1]))
-	ff <- gstat::fit.variogram(vv,vgm(model="Mat",kappa=1,nugget=ngt))
-	rho <- ff[2,3]
-	tau <- 1/ff[2,2]
-	r <- ff[2,2]/(sum(ff[,2]))
-  }
 
   cormat.details <- cormat.inv.update.inla(rho, c.mat, g1.mat, g2.mat, alpha = alpha)
 
@@ -123,22 +106,6 @@ mcmc.GP <- function(Y, S, X, cutoff.Y, S.pred, X.pred, inla.mats, alpha = 2,
   crossprod.Xy <- as.vector(crossprod(X, Y))
   crossprod.Ay <- as.vector(crossprod(A, Y))
 
-  if(warmstart){
-	# latent_temp <- inla.qsample(1,cormat.inv)
-	lt.cov.inv <- crossprod.A/(1-r) + cormat.inv/r
-	lt.mn <- crossprod.Ay/(1-r)
-	chol.lt.cov.inv <- spam::chol(lt.cov.inv)
-	tchol.lt.cov.inv <- t(chol.lt.cov.inv)
-	omega <- spam::forwardsolve(tchol.lt.cov.inv,lt.mn)
-	mm <- spam::backsolve(chol.lt.cov.inv,omega)
-	vv <- spam::backsolve(chol.lt.cov.inv,rnorm(nmesh))
-	latent_temp <- mm + vv/sqrt(tau)
-	# cat(A%*%latent_temp)
-	res <- Y - as.vector(A%*%latent_temp)
-	# cat(res)
-	theta <- c(solve(crossprod(X))%*%crossprod(X,res))
-	X.theta <- c(X%*%theta)
-  }
 
   acc.rho <- att.rho <- mh.rho <- 1
   acc.r <- att.r <- mh.r <- 1
@@ -221,16 +188,6 @@ mcmc.GP <- function(Y, S, X, cutoff.Y, S.pred, X.pred, inla.mats, alpha = 2,
     keepers.tau[iter] <- tau
     keepers.rho[iter] <- rho
     keepers.r[iter] <- r
-
-    # if((iter %% 50 == 0)&(iter > 50)){
-    #   par(mfrow = c(2, 2))
-    #   plot(50:iter, keepers.theta[50:iter, 1], type = "l")
-    #   plot(50:iter, keepers.tau[50:iter], type = "l")
-    #   plot(50:iter, keepers.rho[50:iter], type = "l")
-    #   plot(50:iter, keepers.r[50:iter], type = "l")
-    # }
-
-    cat("\t iter", iter, "\n")
 
   } #end iters
 
