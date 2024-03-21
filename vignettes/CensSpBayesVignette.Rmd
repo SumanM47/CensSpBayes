@@ -53,7 +53,7 @@ But first, we require the mass and stiffness matrices for the SPDE mesh and inde
 
 ```{r,echo=TRUE}
 inla.mats = create_inla_mats(S=S.obs,S.pred=S.pred,
-                             offset=c(0.01, 0.15),
+                             offset=c(0.01, 0.2),
                              cutoff=0.05,
                              max.edge=c(0.01, 0.1))
 ```
@@ -65,8 +65,7 @@ Once we have these matrices, we are ready to fit our Bayesian MCMC model to the 
 ```{r,echo=TRUE}
 X.obs = matrix(1,nrow(S.obs),1)
 X.pred = matrix(1,nrow(S.pred),1)
-```
-```{r,echo=TRUE}
+
 out = CensSpBayes(Y=Y.obs,S= S.obs,X=X.obs, cutoff.Y=cutoff.Y.obs,S.pred=S.pred,X.pred=X.pred,
                   inla.mats=inla.mats,
                   rho.init=0.1,

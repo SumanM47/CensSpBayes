@@ -8,7 +8,7 @@
 #' @param alpha order of SPDE, defaults to 2, the only supported value at the time
 #'
 #' @import spam
-#' @importFrom Matrix diag
+#' @import Matrix
 #'
 #' @return list of quantities: cormat.inv(approximated inverse of the correlation matrix), cormat.logdet(approximated log-determinant for the correlation matrix)
 #' @noRd
@@ -37,6 +37,7 @@ cormat.inv.update.inla <- function(rho, c.mat, g1.mat, g2.mat, alpha = 2){
 #' @param sd.theta prior standard deviation for theta
 #'
 #' @import spam
+#' @import Matrix
 #' @import stats
 #'
 #' @return updated vector of size nq+nmesh with the first nq many being coefficients, the latter nmesh being the latent parameters
@@ -111,6 +112,7 @@ tau.update <- function(ns, nq, nmesh, cur.rss, cur.ss.theta, cur.ss.latent, r, t
 #' @param mh.rho positive scalar, proposal variance for rho update
 #'
 #' @import stats
+#' @import Matrix
 #' @import spam
 #'
 #' @return list of quantities: rho(updated spatial range parameter), cormat.inv(updated inverse correlation matrix), cormat.logdet(updated log-determinant for the correlation matrix), cur.ss.latent (updated current sum of squares due to latent parameters), att.rho (updated number of attempts made to update rho), acc.rho (updated number of times proposed rho was accepted)
