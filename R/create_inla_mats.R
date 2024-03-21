@@ -17,7 +17,6 @@
 #' @param ... Additional parameters to be passed to the function fmesher::fm_mesh_2d_inla()
 #'
 #' @import fmesher
-#' @import Matrix
 #' @import INLA
 #'
 #' @return list of matrices needed for the SPDE approximation. The entries are: c.mat(mass matrix), g1.mat(stiffness matrix), g2.mat(a combination of mass and stiffness matrices), A(index matrix for observation locations), A.pred(index matrix for prediction locations)

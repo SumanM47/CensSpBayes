@@ -38,7 +38,6 @@
 #'
 #' @import stats
 #' @import spam
-#' @import Matrix
 #'
 #' @return a list of posterior samples for theta, tau, rho and r. Additionally, includes the posterior mean and variances of the latent process and the predicted process, and the computation time in minutes
 #' @export
