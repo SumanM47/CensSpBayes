@@ -66,25 +66,27 @@ Once we have these matrices, we are ready to fit our Bayesian MCMC model to the 
 X.obs = matrix(1,nrow(S.obs),1)
 X.pred = matrix(1,nrow(S.pred),1)
 
-out = CensSpBayes(Y=Y.obs,S= S.obs,X=X.obs, cutoff.Y=cutoff.Y.obs,S.pred=S.pred,X.pred=X.pred,
-                  inla.mats=inla.mats,
-                  rho.init=0.1,
-                  iters=200,burn=100,thin=2)
+# out = CensSpBayes(Y=Y.obs,S= S.obs,X=X.obs,
+#                   cutoff.Y=cutoff.Y.obs,
+#                   S.pred=S.pred,X.pred=X.pred,
+#                   inla.mats=inla.mats,
+#                   rho.init=0.1,
+#                   iters=200,burn=100,thin=2)
 ```
 
 
 You can get the samples and the traceplots by accessing the output as you would for any other list output. 
 
 ```{r,echo=TRUE}
-str(out)
+# str(out)
 
-names(out)
+# names(out)
 
 ## Access elements
 
-out$tau
+# out$tau
 
 ## Get traceplots
-plot(out$tau,type="l",xlab="iters",ylab="tau")
+# plot(out$tau,type="l",xlab="iters",ylab="tau")
 
 ```

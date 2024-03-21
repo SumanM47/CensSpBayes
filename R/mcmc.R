@@ -36,6 +36,7 @@
 #' @param burn number of posterior samples to be discarded as burn-in period samples
 #' @param thin thinning interval. The toatl number of iterations is thin*iters
 #'
+#' @import Matrix
 #' @import stats
 #' @import spam
 #'
@@ -94,10 +95,12 @@ CensSpBayes <- function(Y, S, X, cutoff.Y, S.pred, X.pred, inla.mats, alpha = 2,
   if(is.null(rho.upper)){rho.upper <- Inf}
 
 
-  cormat.details <- cormat.inv.update.inla(rho, c.mat, g1.mat, g2.mat, alpha = alpha)
+  cormat.details <- cormat.inv.update.inla(rho, c.mat, g1.mat, g2.mat, alpha = 2)
 
   cormat.inv <- cormat.details$cormat.inv
   cormat.logdet <- cormat.details$cormat.logdet
+
+  cat(str(cormat.inv))
 
   crossprod.X <- crossprod(X)
   crossprod.A <- crossprod(A)
@@ -126,6 +129,7 @@ CensSpBayes <- function(Y, S, X, cutoff.Y, S.pred, X.pred, inla.mats, alpha = 2,
   return.iters <- (burn + 1):iters
 
   for(iter in 1:iters){for(ttt in 1:thin){
+    cat(iter)
     theta.latent <- theta.latent.update(nq, nmesh, crossprod.X, crossprod.A,
                                         crossprod.A.X, crossprod.X.A,
                                         crossprod.Xy, crossprod.Ay,

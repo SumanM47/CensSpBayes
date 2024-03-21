@@ -3,6 +3,7 @@
 export(CensSpBayes)
 export(create_inla_mats)
 import(INLA)
+import(Matrix)
 import(fmesher)
 import(spam)
 import(stats)

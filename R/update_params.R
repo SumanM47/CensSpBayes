@@ -8,16 +8,17 @@
 #' @param alpha order of SPDE, defaults to 2, the only supported value at the time
 #'
 #' @import spam
+#' @import Matrix
 #'
 #' @return list of quantities: cormat.inv(approximated inverse of the correlation matrix), cormat.logdet(approximated log-determinant for the correlation matrix)
 #' @noRd
 
 cormat.inv.update.inla <- function(rho, c.mat, g1.mat, g2.mat, alpha = 2){
-  cormat.inv <- (1 / rho)^4 * c.mat + 2 * (1 / rho)^2 * g1.mat + g2.mat
-  tau2 <- rho^2 / (4 * pi)
+  cormat.inv <- ((1 / rho)^4) * c.mat + (2 * (1 / rho)^2) * g1.mat + g2.mat
+  tau2 <- (rho^2) / (4 * pi)
   cormat.inv <- tau2 * cormat.inv
   cormat.inv_c <- spam::chol(cormat.inv)
-  cormat.logdet <- -2 * sum(log(spam::diag(cormat.inv_c)))
+  cormat.logdet <- -2 * sum(log(Matrix::diag(cormat.inv_c)))
   list(cormat.inv = cormat.inv, cormat.logdet = cormat.logdet)}
 
 #' @name theta.latent.update
@@ -37,6 +38,7 @@ cormat.inv.update.inla <- function(rho, c.mat, g1.mat, g2.mat, alpha = 2){
 #' @param sd.theta prior standard deviation for theta
 #'
 #' @import spam
+#' @import Matrix
 #' @import stats
 #'
 #' @return updated vector of size nq+nmesh with the first nq many being coefficients, the latter nmesh being the latent parameters
@@ -110,6 +112,7 @@ tau.update <- function(ns, nq, nmesh, cur.rss, cur.ss.theta, cur.ss.latent, r, t
 #' @param acc.rho integer, number of times proposed rho value has been updated
 #' @param mh.rho positive scalar, proposal variance for rho update
 #'
+#' @import Matrix
 #' @import stats
 #' @import spam
 #'
