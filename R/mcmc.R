@@ -38,6 +38,7 @@
 #'
 #' @import stats
 #' @import spam
+#' @importFrom Matrix diag
 #'
 #' @return a list of posterior samples for theta, tau, rho and r. Additionally, includes the posterior mean and variances of the latent process and the predicted process, and the computation time in minutes
 #' @export
@@ -74,7 +75,7 @@ CensSpBayes <- function(Y, S, X, cutoff.Y, S.pred, X.pred, inla.mats, alpha = 2,
   Y[censored.cases] <- cutoff.Y[censored.cases]
 
   if(is.null(theta.init)){
-    theta <- c(solve(crossprod(X)+2e-3*diag(nq)) %*% crossprod(X, Y))
+    theta <- c(solve(crossprod(X)+1e-6*diag(nq)) %*% crossprod(X, Y))
   }else{theta <- theta.init}
   X.theta <- c(X %*% theta)
 

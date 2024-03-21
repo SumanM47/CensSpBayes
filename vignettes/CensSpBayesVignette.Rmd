@@ -1,0 +1,91 @@
+---
+title: "CensSpBayesVignette"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{CensSpBayesVignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(CensSpBayes)
+```
+
+We use the dataset \texttt{simdat} to provide a demonstration on how to use the R-package \texttt{CensSpBayes} and its functions.
+
+```{r,echo=TRUE}
+##  Loading the synthetic data
+data(simdat)
+
+## Description of the data
+?simdat
+
+## Variables present in the data
+names(simdat)
+```
+
+Since this data is simulated, all observations are available and nothing is censored or missing. First, we shall proceed to hold off about $20\%$ of the data as prediction location and data. Then we shall use the variable \texttt{cutoff.Y} to create a censored version of the response.
+
+```{r,echo=TRUE}
+predind = sample(1:nrow(simdat),floor(0.2*nrow(simdat)))
+
+Y.obstrue = simdat$Y[-predind]
+Y.predtrue = simdat$Y[predind]
+S.obs = cbind(simdat$x[-predind],simdat$y[-predind])
+S.pred = cbind(simdat$x[predind],simdat$y[predind])
+cutoff.Y.obs = simdat$cutoff.Y[-predind]
+
+Y.censind = which(Y.obstrue < cutoff.Y.obs)
+Y.obs = Y.obstrue
+Y.obs[Y.censind] = cutoff.Y.obs[Y.censind]
+```
+
+We shall now use this data, namely \texttt{Y.obs}, \texttt{S.obs}, \texttt{cutoff.Y.obs} and \texttt{S.pred} to run \texttt{CensSpBayes} function.
+
+But first, we require the mass and stiffness matrices for the SPDE mesh and index matrices for the observation and prediction locations. We do this by using the function \texttt{create_inla_mats}.
+
+```{r,echo=TRUE}
+inla.mats = create_inla_mats(S=S.obs,S.pred=S.pred,
+                             offset=c(0.01, 0.15),
+                             cutoff=0.05,
+                             max.edge=c(0.01, 0.1))
+```
+
+The inputs \texttt{offset}, \texttt{cutoff}, \texttt{max.edge} determines the mesh that will be used to approximate the Gaussian process and can have effects on how well the method performs in approximating the underlying Gaussian process.
+
+Once we have these matrices, we are ready to fit our Bayesian MCMC model to the censored data. Since we have no covariates, we create our design matrix using an intercept term and the locations themselves.
+
+```{r,echo=TRUE}
+X.obs = matrix(1,nrow(S.obs),1)
+X.pred = matrix(1,nrow(S.pred),1)
+```
+```{r,echo=TRUE}
+out = CensSpBayes(Y=Y.obs,S= S.obs,X=X.obs, cutoff.Y=cutoff.Y.obs,S.pred=S.pred,X.pred=X.pred,
+                  inla.mats=inla.mats,
+                  rho.init=0.1,
+                  iters=200,burn=100,thin=2)
+```
+
+
+You can get the samples and the traceplots by accessing the output as you would for any other list output. 
+
+```{r,echo=TRUE}
+str(out)
+
+names(out)
+
+## Access elements
+
+out$tau
+
+## Get traceplots
+plot(out$tau,type="l",xlab="iters",ylab="tau")
+
+```

@@ -8,15 +8,16 @@
 #' @param alpha order of SPDE, defaults to 2, the only supported value at the time
 #'
 #' @import spam
+#' @importFrom Matrix diag
 #'
 #' @return list of quantities: cormat.inv(approximated inverse of the correlation matrix), cormat.logdet(approximated log-determinant for the correlation matrix)
 #' @noRd
 
 cormat.inv.update.inla <- function(rho, c.mat, g1.mat, g2.mat, alpha = 2){
   cormat.inv <- (1 / rho)^4 * c.mat + 2 * (1 / rho)^2 * g1.mat + g2.mat
-  tau <- rho^2 / (4 * pi)
-  cormat.inv <- tau * cormat.inv
-  cormat.logdet <- -2 * sum(log(diag(spam::chol(cormat.inv))))
+  tau2 <- rho^2 / (4 * pi)
+  cormat.inv <- tau2 * cormat.inv
+  cormat.logdet <- -2 * sum(log(Matrix::diag(spam::chol(cormat.inv))))
   list(cormat.inv = cormat.inv, cormat.logdet = cormat.logdet)}
 
 #' @name theta.latent.update

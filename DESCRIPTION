@@ -16,8 +16,13 @@ BugReports: https://github.com/SumanM47/CensSpBayes/issues
 Imports: 
     fmesher,
     INLA,
+    Matrix,
     spam,
     stats
 Depends: 
     R (>= 2.10)
 LazyData: true
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
