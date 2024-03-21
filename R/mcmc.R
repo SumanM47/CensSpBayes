@@ -36,7 +36,7 @@
 #' @param burn number of posterior samples to be discarded as burn-in period samples
 #' @param thin thinning interval. The toatl number of iterations is thin*iters
 #'
-#' @import Matrix
+#' @importFrom Matrix diag
 #' @import stats
 #' @import spam
 #'

@@ -34,13 +34,15 @@ names(simdat)
 Since this data is simulated, all observations are available and nothing is censored or missing. First, we shall proceed to hold off about $20\%$ of the data as prediction location and data. Then we shall use the variable \texttt{cutoff.Y} to create a censored version of the response.
 
 ```{r,echo=TRUE}
-predind = sample(1:nrow(simdat),floor(0.2*nrow(simdat)))
+permind = sample(1:nrow(simdat),nrow(simdat))
+obsind = permind[1:8000]
+predind = permind[8001:10000]
 
-Y.obstrue = simdat$Y[-predind]
+Y.obstrue = simdat$Y[obsind]
 Y.predtrue = simdat$Y[predind]
-S.obs = cbind(simdat$x[-predind],simdat$y[-predind])
+S.obs = cbind(simdat$x[obsind],simdat$y[obsind])
 S.pred = cbind(simdat$x[predind],simdat$y[predind])
-cutoff.Y.obs = simdat$cutoff.Y[-predind]
+cutoff.Y.obs = simdat$cutoff.Y[obsind]
 
 Y.censind = which(Y.obstrue < cutoff.Y.obs)
 Y.obs = Y.obstrue
@@ -66,6 +68,7 @@ Once we have these matrices, we are ready to fit our Bayesian MCMC model to the 
 X.obs = matrix(1,nrow(S.obs),1)
 X.pred = matrix(1,nrow(S.pred),1)
 
+set.seed(100)
 out = CensSpBayes(Y=Y.obs,S= S.obs,X=X.obs,
                   cutoff.Y=cutoff.Y.obs,
                   S.pred=S.pred,X.pred=X.pred,
