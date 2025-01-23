@@ -4,7 +4,7 @@
 \alias{create_inla_mats}
 \title{Create the matrices required for SPDE approximation in CensSpBayes}
 \usage{
-create_inla_mats(S,S.pred=NULL,
+create_inla_mats(S,S_pred=NULL,
                          offset=NULL,
                          cutoff=1e-12,
                          max.edge=NULL,...)
@@ -12,7 +12,7 @@ create_inla_mats(S,S.pred=NULL,
 \arguments{
 \item{S}{Matrix of locations where data is observed}
 
-\item{S.pred}{(optional) Matrix of locations where data is to be predicted. If this is not supplied, the corresponding index matrix will be returned as a NULL object}
+\item{S_pred}{(optional) Matrix of locations where data is to be predicted. If this is not supplied, the corresponding index matrix will be returned as a NULL object}
 
 \item{offset}{The automatic extension distance. One or two values, for an inner and an optional outer extension. If negative, interpreted as a factor relative to the approximate data diameter (default=-0.10???). Same as in fmesher::fm_mesh_2d_inla()}
 
