@@ -48,7 +48,7 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
                         rho_init = 0.5, r_init = NULL,
                         jitter=0,
                         # priors
-                        mean_theta = 0, sd_theta = 1e2,
+                        mean_theta = 0, sd_theta = 1,
                         tau_a = 0.1, tau_b = 0.1,
                         rho_upper = NULL,
                         # mcmc settings
@@ -94,9 +94,11 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
   rho <- rho_init
   if(is.null(rho_upper)){rho_upper <- 0.25*max(dist(S))}
 
+  tau_beta <- 0.5
+
   lambda <- rep(sd_theta,nq)
 
-  tau_beta <- 0.5
+
 
 
   cormat_inv <- ((rho^2) / (4 * pi))*(((1 / rho)^4) * c_mat + (2 * (1 / rho)^2) * g1_mat + g2_mat)
@@ -217,11 +219,11 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
     ## Update lambda -- MH
 
     for(ii in 1:nq){
-      cur_l_lambda <- -0.5*((theta[ii] - mean_theta)/lambda[ii])^2 -log(lambda[ii]) + log(log(lambda[ii]/tau_beta)) - log(((lambda[ii]/tau_beta)^2)-1)
+      cur_l_lambda <- -0.5*(((theta[ii] - mean_theta)/lambda[ii])^2) - log(lambda[ii]) + log(abs(log(lambda[ii]/tau_beta))) - log(abs(((lambda[ii]/tau_beta)^2)-1))
 
       can_lambda <- exp(log(lambda[ii]) + mh_lambda[ii]*rnorm(1))
 
-      can_l_lambda <- -0.5*((theta[ii] - mean_theta)/can_lambda[ii])^2 -log(can_lambda[ii]) + log(log(can_lambda[ii]/tau_beta)) - log(((can_lambda[ii]/tau_beta)^2)-1)
+      can_l_lambda <- -0.5*(((theta[ii] - mean_theta)/can_lambda[ii])^2) - log(can_lambda[ii]) + log(abs(log(can_lambda[ii]/tau_beta))) - log(abs(((can_lambda[ii]/tau_beta)^2)-1))
 
       ratio_lambda <- can_l_lambda - cur_l_lambda + log(can_lambda[ii]) - log(lambda[ii])
 
