@@ -235,12 +235,12 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
 
     ## Update tau_beta -- MH
 
-    cur_l_taubeta <- -nq*log(tau_beta) + sum(log(log(lambda/tau_beta))) - sum(log(((lambda/tau_beta)^2)-1))
+    cur_l_taubeta <- -nq*log(tau_beta) + sum(log(abs(log(lambda/tau_beta)))) - sum(log(abs(((lambda/tau_beta)^2)-1)))
 
     can_tau_betastar <- log(tau_beta/(1-tau_beta)) + mh_taubeta*rnorm(1)
     can_tau_beta <- 1/(1+exp(-can_tau_betastar))
 
-    can_l_taubeta <- -nq*log(can_tau_beta) + sum(log(log(lambda/can_tau_beta))) - sum(log(((lambda/can_tau_beta)^2)-1))
+    can_l_taubeta <- -nq*log(can_tau_beta) + sum(log(abs(log(lambda/can_tau_beta)))) - sum(log(abs(((lambda/can_tau_beta)^2)-1)))
 
     ratio_taubeta <- can_l_taubeta - cur_l_taubeta + nq*(log(can_tau_beta) + log(1-can_tau_beta) - log(tau_beta) - log(1-tau_beta))
 
