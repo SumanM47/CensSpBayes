@@ -117,7 +117,7 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
   acc_rho <- acc_r <- acc_taubeta <- att <- 0
   mh_rho <- mh_r <- mh_taubeta <- 1
   acc_lambda <- rep(0,nq)
-  mh_lambda <- rep(1,nq)
+  mh_lambda <- rep(0.1,nq)
 
   latent_sum <- rep(0, nmesh)
   latent2_sum <- rep(0, nmesh)
@@ -202,7 +202,7 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
 
     ## Update r -- MH
 
-    rtemp <- (r-1e-4)/0.9999
+    rtemp <- (r-1e-4)/(0.9999-1e-4)
     r_star <- log(rtemp/(1-rtemp))
     can_r_star <- rnorm(1, r_star, mh_r)
     can_rtemp <- 1/(1+exp(-can_r_star))
@@ -221,14 +221,19 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
     for(ii in 1:nq){
       cur_l_lambda <- -0.5*(((theta[ii] - mean_theta)/lambda[ii])^2) - log(lambda[ii]) + log(abs(log(lambda[ii]/tau_beta))) - log(abs(((lambda[ii]/tau_beta)^2)-1))
 
+      # print(cur_l_lambda)
+
       can_lambda <- exp(log(lambda[ii]) + mh_lambda[ii]*rnorm(1))
+      # print(can_lambda)
 
-      can_l_lambda <- -0.5*(((theta[ii] - mean_theta)/can_lambda[ii])^2) - log(can_lambda[ii]) + log(abs(log(can_lambda[ii]/tau_beta))) - log(abs(((can_lambda[ii]/tau_beta)^2)-1))
+      can_l_lambda <- -0.5*(((theta[ii] - mean_theta)/can_lambda)^2) - log(can_lambda) + log(abs(log(can_lambda/tau_beta))) - log(abs(((can_lambda/tau_beta)^2)-1))
+      # print(can_l_lambda)
 
-      ratio_lambda <- can_l_lambda - cur_l_lambda + log(can_lambda[ii]) - log(lambda[ii])
+
+      ratio_lambda <- can_l_lambda - cur_l_lambda + log(can_lambda) - log(lambda[ii])
 
       if(log(runif(1)) < ratio_lambda){
-        lambda[ii] <- can_lambda[ii]
+        lambda[ii] <- can_lambda
         acc_lambda[ii] <- acc_lambda[ii] + 1
       }
     }
@@ -237,8 +242,9 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
 
     cur_l_taubeta <- -nq*log(tau_beta) + sum(log(abs(log(lambda/tau_beta)))) - sum(log(abs(((lambda/tau_beta)^2)-1)))
 
-    can_tau_betastar <- log(tau_beta/(1-tau_beta)) + mh_taubeta*rnorm(1)
-    can_tau_beta <- 1/(1+exp(-can_tau_betastar))
+    tau_betastar <- (tau_beta-1e-4)/(0.9999-1e-4)
+    can_tau_betastar <- log(tau_betastar/(1-tau_betastar)) + mh_taubeta*rnorm(1)
+    can_tau_beta <- 1e-4 + (0.9999-1e-4)/(1+exp(-can_tau_betastar))
 
     can_l_taubeta <- -nq*log(can_tau_beta) + sum(log(abs(log(lambda/can_tau_beta)))) - sum(log(abs(((lambda/can_tau_beta)^2)-1)))
 
@@ -311,8 +317,9 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
   Y_pred_posmean <- Y_pred_sum / length(return_iters)
   Y_pred_posvar <- Y_pred2_sum / length(return_iters) - Y_pred_posmean^2
 
-  propinc <- colMeans(1/(1+(keepers_lambda*keepers_taubeta)^2))
-  incind <- which(propinc < 0.5)
+  # propinc <- colMeans(1/(1+(keepers_lambda*keepers_taubeta)^2))
+  # incind <- which(propinc < 0.5)
+  kapp <- 1/(1+(keepers_lambda*keepers_taubeta)^2)
 
   tock <- proc.time()[3]
 
@@ -320,11 +327,14 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
                   tau = keepers_tau,
                   rho = keepers_rho,
                   r = keepers_r,
+                  lambda = keepers_lambda,
+                  tau_beta = keepers_taubeta,
                   latent_posmean = latent_posmean,
                   latent_posvar = latent_posvar,
                   Y_pred_posmean = Y_pred_posmean,
                   Y_pred_posvar = Y_pred_posvar,
-                  inclusion_index = incind,
+                  kappa = kapp,
+                  # inclusion_index = incind,
                   minutes = (tock - tick) / 60
   )
 
