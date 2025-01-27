@@ -334,6 +334,7 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
                   Y_pred_posmean = Y_pred_posmean,
                   Y_pred_posvar = Y_pred_posvar,
                   kappa = kapp,
+                  inla_mats_used = inla_mats,
                   # inclusion_index = incind,
                   minutes = (tock - tick) / 60
   )
