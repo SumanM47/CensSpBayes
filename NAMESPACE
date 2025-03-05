@@ -2,6 +2,7 @@
 
 export(CensSpBayes)
 export(CensSpBayes2)
+export(CensSpBayes3)
 export(create_inla_mats)
 import(INLA)
 import(fmesher)
