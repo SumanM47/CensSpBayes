@@ -157,7 +157,7 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
     mm <- spam::backsolve(chol_latent_cov_inv, omega)
     zz <- rnorm(nq + nmesh)
     vv <- spam::backsolve(chol_latent_cov_inv, zz)
-    theta_latent <- mm + vv
+    theta_latent <- as.numeric(mm + vv)
 
 
     theta <- theta_latent[1:nq]
