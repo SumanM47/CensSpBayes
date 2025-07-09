@@ -75,7 +75,9 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
   Y[censored_cases] <- cutoff_Y[censored_cases]
 
   if(is.null(theta_init)){
-    theta <- c(solve(crossprod(X)+1e-6*diag(nq)) %*% crossprod(X, Y))
+    # theta <- c(solve(crossprod(X)+1e-6*diag(nq)) %*% crossprod(X, Y))
+    CC <- chol(crossprod(X))
+    theta <- c(backsolve(CC,forwardsolve(t(CC),crossprod(X,Y))))
   }else{theta <- theta_init}
   X_theta <- c(X %*% theta)
 
