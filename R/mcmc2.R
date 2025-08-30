@@ -65,7 +65,7 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
   if(pred_flag){A_pred <- inla_mats$A_pred}
 
   X <- as.matrix(X)
-  X_pred <- as.matrix(X_pred)
+  if(pred_flag){X_pred <- as.matrix(X_pred)}
 
   ns <- length(Y)
   nmesh <- ncol(A)
