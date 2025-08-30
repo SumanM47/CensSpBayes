@@ -56,12 +56,13 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
 
   tick <- proc.time()[3]
 
+  pred_flag <- (!is.null(X_pred))
 
   c_mat <- inla_mats$c_mat
   g1_mat <- inla_mats$g1_mat
   g2_mat <- inla_mats$g2_mat
   A <- inla_mats$A
-  A_pred <- inla_mats$A_pred
+  if(pred_flag){A_pred <- inla_mats$A_pred}
 
   X <- as.matrix(X)
   X_pred <- as.matrix(X_pred)
@@ -69,7 +70,7 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
   ns <- length(Y)
   nmesh <- ncol(A)
   nq <- ncol(X)
-  np <- nrow(S_pred)
+  if(pred_flag){np <- nrow(S_pred)}
 
   censored_cases <- which(Y <= cutoff_Y)
   Y[censored_cases] <- cutoff_Y[censored_cases]
@@ -124,8 +125,11 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
   latent_sum <- rep(0, nmesh)
   latent2_sum <- rep(0, nmesh)
 
-  Y_pred_sum <- rep(0, np)
-  Y_pred2_sum <- rep(0, np)
+  Y_pred_sum <- Y_pred2_sum <- NULL
+  if(pred_flag){
+    Y_pred_sum <- rep(0, np)
+    Y_pred2_sum <- rep(0, np)
+    }
 
   keepers_theta <- matrix(NA, nrow = iters, ncol = nq)
   keepers_tau <- rep(NA, iters)
@@ -297,10 +301,12 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
       latent_sum <- latent_sum + latent
       latent2_sum <- latent2_sum + latent^2
 
-      Y_pred <- c(X_pred %*% theta) + as.vector(A_pred %*% latent) + (sqrt(1 - r) * rnorm(np)) / sqrt(tau)
+      if(pred_flag){
+        Y_pred <- c(X_pred %*% theta) + as.vector(A_pred %*% latent) + (sqrt(1 - r) * rnorm(np)) / sqrt(tau)
 
-      Y_pred_sum <- Y_pred_sum + Y_pred
-      Y_pred2_sum <- Y_pred2_sum + Y_pred^2
+        Y_pred_sum <- Y_pred_sum + Y_pred
+        Y_pred2_sum <- Y_pred2_sum + Y_pred^2
+        }
     }
 
     # storage
@@ -316,8 +322,11 @@ CensSpBayes2 <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2
   latent_posmean <- latent_sum / length(return_iters)
   latent_posvar <- latent2_sum / length(return_iters) - latent_posmean^2
 
-  Y_pred_posmean <- Y_pred_sum / length(return_iters)
-  Y_pred_posvar <- Y_pred2_sum / length(return_iters) - Y_pred_posmean^2
+  Y_pred_posmean <- Y_pred_posvar <- NULL
+  if(pred_flag){
+    Y_pred_posmean <- Y_pred_sum / length(return_iters)
+    Y_pred_posvar <- Y_pred2_sum / length(return_iters) - Y_pred_posmean^2
+    }
 
   # propinc <- colMeans(1/(1+(keepers_lambda*keepers_taubeta)^2))
   # incind <- which(propinc < 0.5)
