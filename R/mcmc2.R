@@ -8,7 +8,7 @@
 #'                theta_init = NULL, latent_init = NULL, tau_init = NULL,
 #'                rho_init = 0.5, r_init = NULL,
 #'                jitter=0,
-#'                mean_theta = 0, sd_theta = 1e2,
+#'                mean_theta = 0, sd_theta = 1,
 #'                tau_a = 0.1, tau_b = 0.1,
 #'                rho_upper = NULL,
 #'                iters = 4000, burn = 2000, thin = 5)

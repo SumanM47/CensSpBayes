@@ -4,13 +4,13 @@
 \alias{CensSpBayes}
 \title{Function to run MCMC for left censored massive spatial data}
 \usage{
-CensSpBayes(Y, S, X, cutoff.Y, S.pred, X.pred, inla.mats, alpha = 2,
-               theta.init = NULL, latent.init = NULL, tau.init = NULL,
-               rho.init = 0.5, r.init = NULL,
+CensSpBayes(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2,
+               theta_init = NULL, latent_init = NULL, tau_init = NULL,
+               rho_init = 0.5, r_init = NULL,
                jitter=0,
-               mean.theta = 0, sd.theta = 1e2,
-               tau.a = 0.1, tau.b = 0.1,
-               rho.upper = NULL,
+               mean_theta = 0, sd_theta = 1e2,
+               tau_a = 0.1, tau_b = 0.1,
+               rho_upper = NULL,
                iters = 4000, burn = 2000, thin = 5)
 }
 \arguments{
@@ -20,37 +20,37 @@ CensSpBayes(Y, S, X, cutoff.Y, S.pred, X.pred, inla.mats, alpha = 2,
 
 \item{X}{design matrix for covariates, includes intercept}
 
-\item{cutoff.Y}{vector of cutoff values below which data are censored}
+\item{cutoff_Y}{vector of cutoff values below which data are censored}
 
-\item{S.pred}{matrix of prediction locations, each row corresponds to a location}
+\item{S_pred}{matrix of prediction locations, each row corresponds to a location}
 
-\item{X.pred}{matrix of covariate values at the prediction locations}
+\item{X_pred}{matrix of covariate values at the prediction locations}
 
-\item{inla.mats}{list of matrices needed for the SPDE approximation. The entries are: c.mat(mass matrix), g1.mat(stiffness matrix), g2.mat(a combination of mass and stiffness matrices), A(index matrix for observation locations), A.pred(index matrix for prediction locations)}
+\item{inla_mats}{list of matrices needed for the SPDE approximation. The entries are: c.mat(mass matrix), g1.mat(stiffness matrix), g2.mat(a combination of mass and stiffness matrices), A(index matrix for observation locations), A.pred(index matrix for prediction locations)}
 
 \item{alpha}{the order of the SPDE, defaults to 2, currently the only accepted value}
 
-\item{theta.init}{initial values for theta, the coefficients for X}
+\item{theta_init}{initial values for theta, the coefficients for X}
 
-\item{latent.init}{initial values for latent parameters}
+\item{latent_init}{initial values for latent parameters}
 
-\item{tau.init}{initial value for the precision parameter}
+\item{tau_init}{initial value for the precision parameter}
 
-\item{rho.init}{initial value for the spatial range parameter}
+\item{rho_init}{initial value for the spatial range parameter}
 
-\item{r.init}{initial value for the r parameter, the proportion of partial sill to sill}
+\item{r_init}{initial value for the r parameter, the proportion of partial sill to sill}
 
 \item{jitter}{numeric variable to indicate whether the initial values are to be used exactly (jitter=0) or to start with a slightly different value (jitter !=0)}
 
-\item{mean.theta}{hyperparameter corresponding to the mean of the normal prior for theta}
+\item{mean_theta}{hyperparameter corresponding to the mean of the normal prior for theta}
 
-\item{sd.theta}{hyperparameter corresponding to the sd of the normal prior for theta}
+\item{sd_theta}{hyperparameter corresponding to the sd of the normal prior for theta}
 
-\item{tau.a}{hyperparameter corresponding to the shape of the inverse gamma prior for tau}
+\item{tau_a}{hyperparameter corresponding to the shape of the inverse gamma prior for tau}
 
-\item{tau.b}{hyperparameter corresponding to the rate of the inverse gamma prior for tau}
+\item{tau_b}{hyperparameter corresponding to the rate of the inverse gamma prior for tau}
 
-\item{rho.upper}{hyperparameter corresponding to the upper limit of the uniform prior for rho. Recommend use no more than 0.25*maximum distance of the domain}
+\item{rho_upper}{hyperparameter corresponding to the upper limit of the uniform prior for rho. Recommend use no more than 0.25*maximum distance of the domain}
 
 \item{iters}{number of posterior samples to be drawn}
 

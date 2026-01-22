@@ -41,14 +41,14 @@
 #' @import spam
 #'
 #' @return a list of posterior samples for theta, tau, rho and r. Additionally, includes the posterior mean and variances of the latent process and the predicted process, and the computation time in minutes
-#' @export
+#' @noRd
 
 CensSpBayes3  <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 2,
                          theta_init = NULL, latent_init = NULL, tau_init = NULL,
                          rho_init = 0.5, r_init = NULL,
                          jitter=0,
                          # priors
-                         mean_theta = 0, sd_theta = 1,
+                         mean_theta = 0, sd_theta = 1e2,
                          tau_a = 0.1, tau_b = 0.1,
                          rho_upper = NULL,
                          # mcmc settings
@@ -176,8 +176,8 @@ CensSpBayes3  <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 
 
     ## Compute loglikelihood and gradient
 
-    cur_l_theta <- -0.5*(tau/(1-r))*ss_nc + sum(pnorm(sqrt(tau/(1-r))*res_c,log=T)) - 0.5*sum(((theta - mean_theta)/lambda)^2)
-    cur_grad_theta <- (tau/(1-r))*(crossprod(X_nc,res_nc)) - sqrt(tau/(1-r))*(crossprod(X_c,exp(dnorm(sqrt(tau/(1-r))*res_c,log=TRUE)-pnorm(sqrt(tau/(1-r))*res_c,log=TRUE)))) - (theta - mean_theta)/(lambda^2)
+    cur_l_theta <- -0.5*(tau/(1-r))*ss_nc + sum(pnorm(sqrt(tau/(1-r))*res_c,log.p=T)) - 0.5*sum(((theta - mean_theta)/lambda)^2)
+    cur_grad_theta <- (tau/(1-r))*(crossprod(X_nc,res_nc)) - sqrt(tau/(1-r))*(crossprod(X_c,exp(dnorm(sqrt(tau/(1-r))*res_c,log=TRUE)-pnorm(sqrt(tau/(1-r))*res_c,log.p=TRUE)))) - (theta - mean_theta)/(lambda^2)
 
     # print(sum(is.na(cur_grad_theta)))
 
@@ -200,7 +200,7 @@ CensSpBayes3  <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 
       can_ss_nc <- sum(can_res_nc^2)
       can_res_c <- Y_c - can_Xc_theta - Acw
 
-      can_grad_theta <- (tau/(1-r))*(crossprod(X_nc,can_res_nc)) - sqrt(tau/(1-r))*(crossprod(X_c,exp(dnorm(sqrt(tau/(1-r))*can_res_c,log=TRUE)-pnorm(sqrt(tau/(1-r))*can_res_c,log=TRUE)))) - (can_theta - mean_theta)/(lambda^2)
+      can_grad_theta <- (tau/(1-r))*(crossprod(X_nc,can_res_nc)) - sqrt(tau/(1-r))*(crossprod(X_c,exp(dnorm(sqrt(tau/(1-r))*can_res_c,log=TRUE)-pnorm(sqrt(tau/(1-r))*can_res_c,log.p=TRUE)))) - (can_theta - mean_theta)/(lambda^2)
 
       if(iind!=L_theta){can_P <- can_P - mh_theta*can_grad_theta}
     }
@@ -213,7 +213,7 @@ CensSpBayes3  <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 
 
     can_P <- -can_P
 
-    can_l_theta <- -0.5*(tau/(1-r))*can_ss_nc + sum(pnorm(sqrt(tau/(1-r))*can_res_c,log=T)) - 0.5*sum(((can_theta - mean_theta)/lambda)^2)
+    can_l_theta <- -0.5*(tau/(1-r))*can_ss_nc + sum(pnorm(sqrt(tau/(1-r))*can_res_c,log.p=T)) - 0.5*sum(((can_theta - mean_theta)/lambda)^2)
 
     # print(c(sum(is.na(can_theta)),sum(is.na(can_P)),can_ss_nc,tau,r,can_l_theta,cur_l_theta))
 
@@ -242,8 +242,8 @@ CensSpBayes3  <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 
 
     ## Compute loglikelihood and gradient
 
-    cur_l_latent <- -0.5*(tau/(1-r))*ss_nc + sum(pnorm(sqrt(tau/(1-r))*res_c,log=T)) - 0.5*(tau/r)*ss_latent
-    cur_grad_latent <- (tau/(1-r))*(crossprod(A_nc,res_nc)) - sqrt(tau/(1-r))*(crossprod(A_c,exp(dnorm(sqrt(tau/(1-r))*res_c,log=TRUE)-pnorm(sqrt(tau/(1-r))*res_c,log=TRUE)))) - (tau/r)*Qlat
+    cur_l_latent <- -0.5*(tau/(1-r))*ss_nc + sum(pnorm(sqrt(tau/(1-r))*res_c,log.p=T)) - 0.5*(tau/r)*ss_latent
+    cur_grad_latent <- (tau/(1-r))*(crossprod(A_nc,res_nc)) - sqrt(tau/(1-r))*(crossprod(A_c,exp(dnorm(sqrt(tau/(1-r))*res_c,log=TRUE)-pnorm(sqrt(tau/(1-r))*res_c,log.p=TRUE)))) - (tau/r)*Qlat
 
     ## Half-step before the start
 
@@ -262,7 +262,7 @@ CensSpBayes3  <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 
       can_ss_nc <- sum(can_res_nc^2)
       can_res_c <- Y_c - Xc_theta - can_Acw
 
-      can_grad_latent <- (tau/(1-r))*(crossprod(A_nc,can_res_nc)) - sqrt(tau/(1-r))*(crossprod(A_c,exp(dnorm(sqrt(tau/(1-r))*can_res_c,log=TRUE)-pnorm(sqrt(tau/(1-r))*can_res_c,log=TRUE)))) - (tau/r)*can_Qlat
+      can_grad_latent <- (tau/(1-r))*(crossprod(A_nc,can_res_nc)) - sqrt(tau/(1-r))*(crossprod(A_c,exp(dnorm(sqrt(tau/(1-r))*can_res_c,log=TRUE)-pnorm(sqrt(tau/(1-r))*can_res_c,log.p=TRUE)))) - (tau/r)*can_Qlat
 
       if(iind!=L_latent){can_P <- can_P - mh_latent*can_grad_latent}
     }
@@ -275,7 +275,7 @@ CensSpBayes3  <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 
 
     can_P <- -can_P
 
-    can_l_latent <- -0.5*(tau/(1-r))*can_ss_nc + sum(pnorm(sqrt(tau/(1-r))*can_res_c,log=T)) - 0.5*(tau/r)*can_ss_latent
+    can_l_latent <- -0.5*(tau/(1-r))*can_ss_nc + sum(pnorm(sqrt(tau/(1-r))*can_res_c,log.p=T)) - 0.5*(tau/r)*can_ss_latent
 
     a_latent <- can_l_latent - cur_l_latent - 0.5*(tau/r)*sum(spam::backsolve(Q_ch,can_P)^2) + 0.5*(tau/r)*sum(spam::backsolve(Q_ch,P)^2)
     # a_latent <- ifelse(is.na(a_latent),-Inf,a_latent)
@@ -380,11 +380,11 @@ CensSpBayes3  <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 
 
     ## Update tau -- MH
 
-    cur_l_tau <- (0.5*nSnc + 0.5*nmesh + tau_a -1)*log(tau) - ((0.5*ss_nc/(1-r)) + (0.5*ss_latent/r) + tau_b)*tau + sum(pnorm(sqrt(tau/(1-r))*res_c,log=T))
+    cur_l_tau <- (0.5*nSnc + 0.5*nmesh + tau_a -1)*log(tau) - ((0.5*ss_nc/(1-r)) + (0.5*ss_latent/r) + tau_b)*tau + sum(pnorm(sqrt(tau/(1-r))*res_c,log.p=T))
 
     can_tau <- exp(log(tau) + mh_tau*rnorm(1))
 
-    can_l_tau <- (0.5*nSnc + 0.5*nmesh + tau_a -1)*log(can_tau) - ((0.5*ss_nc/(1-r)) + (0.5*ss_latent/r) + tau_b)*can_tau + sum(pnorm(sqrt(can_tau/(1-r))*res_c,log=T))
+    can_l_tau <- (0.5*nSnc + 0.5*nmesh + tau_a -1)*log(can_tau) - ((0.5*ss_nc/(1-r)) + (0.5*ss_latent/r) + tau_b)*can_tau + sum(pnorm(sqrt(can_tau/(1-r))*res_c,log.p=T))
 
     a_tau <- can_l_tau - cur_l_tau + log(can_tau) - log(tau)
 
@@ -433,7 +433,7 @@ CensSpBayes3  <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 
 
     ## Update r -- MH
 
-    cur_l_r <- -0.5*nSnc*log(1-r) -0.5*nmesh*log(r) -0.5*tau*((ss_nc/(1-r)) + (ss_latent/r)) + sum(pnorm(sqrt(tau/(1-r))*res_c,log=T))
+    cur_l_r <- -0.5*nSnc*log(1-r) -0.5*nmesh*log(r) -0.5*tau*((ss_nc/(1-r)) + (ss_latent/r)) + sum(pnorm(sqrt(tau/(1-r))*res_c,log.p=T))
 
     rtr <- (r - 1e-4)/(0.9999 - 1e-4)
     r_star <- log(rtr/(1-rtr))
@@ -441,7 +441,7 @@ CensSpBayes3  <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 
     can_rtr <- 1/(1+exp(-can_rstar))
     can_r <- (0.9999 - 1e-4)*can_rtr + 1e-4
 
-    can_l_r <- -0.5*nSnc*log(1-can_r) -0.5*nmesh*log(can_r) -0.5*tau*((ss_nc/(1-can_r)) + (ss_latent/can_r)) + sum(pnorm(sqrt(tau/(1-can_r))*res_c,log=T))
+    can_l_r <- -0.5*nSnc*log(1-can_r) -0.5*nmesh*log(can_r) -0.5*tau*((ss_nc/(1-can_r)) + (ss_latent/can_r)) + sum(pnorm(sqrt(tau/(1-can_r))*res_c,log.p=T))
 
     a_r <- can_l_r - cur_l_r + log(can_r - 1e-4) + log(0.9999 - can_r) - log(r - 1e-4) - log(0.9999 - r)
 

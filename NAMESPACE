@@ -2,9 +2,10 @@
 
 export(CensSpBayes)
 export(CensSpBayes2)
-export(CensSpBayes3)
+export(CensSpBayesVS)
 export(create_inla_mats)
 import(INLA)
+import(VsusP)
 import(fmesher)
 import(spam)
 import(stats)
