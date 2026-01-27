@@ -139,11 +139,10 @@ CensSpBayesVS <- function(Y, S, X, cutoff_Y, S_pred, X_pred, inla_mats, alpha = 
   bmn <- colMeans(out$theta)
   bmn[-out$ind2inc] <- 0
   Xb <- c(X%*%bmn)
-  # out$Y_pred_posmean_vs <- Xb + c(out$inla_mats_used$A_pred%*%c(out$latent_posmean))
   out$Y_pred_posmean <- Xb + as.numeric(out$inla_mats_used$A_pred%*%c(out$latent_posmean))
-  # th2use <- out$theta
-  # th2use[-out$ind2inc] <- 0
-  # out$theta <- th2use
+  th2use <- out$theta
+  th2use[-out$ind2inc] <- 0
+  out$theta <- th2use
 
   return(out)
 }
