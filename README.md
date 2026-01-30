@@ -32,3 +32,6 @@ With <tt>devtools</tt> and <tt>INLA</tt> on your machine, you can load it and in
 <li><tt>library(devtools)</tt></li>
 <li><tt>devtools::install_github("SumanM47/CensSpBayes")</tt></li>
 
+# Step 4: Using CensSpBayes
+
+Please see the vignette at <https://sumanm47.github.io/Vignettes/CensSpBayes/>.
