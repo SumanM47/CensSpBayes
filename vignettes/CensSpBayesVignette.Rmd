@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 library(CensSpBayes)
 ```
 
-We use the dataset \texttt{simdat} to provide a demonstration on how to use the R-package \texttt{CensSpBayes} and its functions.
+We use the dataset <tt>simdat</tt> to provide a demonstration on how to use the R-package <tt>CensSpBayes</tt> and its functions.
 
 ```{r,echo=TRUE}
 ##  Loading the synthetic data
@@ -33,7 +33,7 @@ data(simdat)
 names(simdat)
 ```
 
-Since this data is simulated, all observations are available and nothing is censored or missing. First, we shall proceed to hold off about $20\%$ of the data as prediction location and data. Then we shall use the variable \texttt{cutoff.Y} to create a censored version of the response.
+Since this data is simulated, all observations are available and nothing is censored or missing. First, we shall proceed to hold off about 20% of the data as prediction location and data. Then we shall use the variable <tt>cutoff.Y</tt> to create a censored version of the response.
 
 ```{r,echo=TRUE}
 permind = sample(1:nrow(simdat),nrow(simdat))
@@ -51,9 +51,9 @@ Y.obs = Y.obstrue
 Y.obs[Y.censind] = cutoff.Y.obs[Y.censind]
 ```
 
-We shall now use this data, namely \texttt{Y.obs}, \texttt{S.obs}, \texttt{cutoff.Y.obs} and \texttt{S.pred} to run \texttt{CensSpBayes} function.
+We shall now use this data, namely <tt>Y.obs</tt>, <tt>S.obs</tt>, <tt>cutoff.Y.obs</tt> and <tt>S.pred</tt> to run <tt>CensSpBayes</tt> function.
 
-But first, we require the mass and stiffness matrices for the SPDE mesh and index matrices for the observation and prediction locations. We do this by using the function \texttt{create_inla_mats}.
+But first, we require the mass and stiffness matrices for the SPDE mesh and index matrices for the observation and prediction locations. We do this by using the function <tt>create_inla_mats</tt>.
 
 ```{r,echo=TRUE}
 inla.mats = create_inla_mats(S=S.obs,S_pred=S.pred,
@@ -62,7 +62,7 @@ inla.mats = create_inla_mats(S=S.obs,S_pred=S.pred,
                              max.edge=c(0.01, 0.1))
 ```
 
-The inputs \texttt{offset}, \texttt{cutoff}, \texttt{max.edge} determines the mesh that will be used to approximate the Gaussian process and can have effects on how well the method performs in approximating the underlying Gaussian process.
+The inputs <tt>offset</tt>, <tt>cutoff</tt>, <tt>max.edge</tt> determines the mesh that will be used to approximate the Gaussian process and can have effects on how well the method performs in approximating the underlying Gaussian process.
 
 Once we have these matrices, we are ready to fit our Bayesian MCMC model to the censored data. Since we have no covariates, we create our design matrix using an intercept term and the locations themselves.
 
@@ -96,12 +96,12 @@ plot(out$tau,type="l",xlab="iters",ylab="tau")
 
 ```
 
-# Demonstration for variable Selection using \texttt{CensSpBayes}
+# Demonstration for variable Selection using <tt>CensSpBayes</tt>
 
-You can use the function \texttt{CensSpBayesVS} to fit the CensSpBayes model and perform variable selection. This function allows for the choice of prior to be between Gaussian and Hosrseshoe+ (Bhadra et al., 2017) using the input \texttt{prior} which has two possible values of input \texttt{"gaussian"} or \texttt{"hsp"} for the two prior choices. There is also another input to this function named \texttt{vss} which allows values \texttt{"none"}, \texttt{"cr"}, \texttt{"2means"}, and \texttt{"hsp"} as demonstrated below: 
+You can use the function <tt>CensSpBayesVS</tt> to fit the CensSpBayes model and perform variable selection. This function allows for the choice of prior to be between Gaussian and Hosrseshoe+ (Bhadra et al., 2017) using the input <tt>prior</tt> which has two possible values of input <tt>"gaussian"</tt> or <tt>"hsp"</tt> for the two prior choices. There is also another input to this function named <tt>vss</tt> which allows values <tt>"none"</tt>, <tt>"cr"</tt>, <tt>"2means"</tt>, and <tt>"hsp"</tt> as demonstrated below: 
 
 ```{r,echo=TRUE,eval=FALSE}
-out = CensSpBayesVS(Y=Y.obs,S= S.obs,X=X.obs,
+outvs = CensSpBayesVS(Y=Y.obs,S= S.obs,X=X.obs,
                   cutoff_Y=cutoff.Y.obs,
                   S_pred=S.pred,X_pred=X.pred,
                   inla_mats=inla.mats,
@@ -110,7 +110,7 @@ out = CensSpBayesVS(Y=Y.obs,S= S.obs,X=X.obs,
                   vss="none",
                   iters=200,burn=100,thin=2) ## Same as CensSpBayes
 
-out = CensSpBayesVS(Y=Y.obs,S= S.obs,X=cbind(X.obs,S.obs),
+outvs = CensSpBayesVS(Y=Y.obs,S= S.obs,X=cbind(X.obs,S.obs),
                   cutoff_Y=cutoff.Y.obs,
                   S_pred=S.pred,X_pred=cbind(X.pred,S.pred),
                   inla_mats=inla.mats,
@@ -120,7 +120,7 @@ out = CensSpBayesVS(Y=Y.obs,S= S.obs,X=cbind(X.obs,S.obs),
                   addpar=0.95,
                   iters=200,burn=100,thin=2) ## Gaussian prior but only coefficients whose 95% (addpar*100%) CI does not include 0 are included in the results. Can be used with prior="hsp"
 
-out = CensSpBayesVS(Y=Y.obs,S= S.obs,X=cbind(X.obs,S.obs),
+outvs = CensSpBayesVS(Y=Y.obs,S= S.obs,X=cbind(X.obs,S.obs),
                   cutoff_Y=cutoff.Y.obs,
                   S_pred=S.pred,X_pred=cbind(X.pred,S.pred),
                   inla_mats=inla.mats,
@@ -130,7 +130,7 @@ out = CensSpBayesVS(Y=Y.obs,S= S.obs,X=cbind(X.obs,S.obs),
                   addpar=20,
                   iters=200,burn=100,thin=2) ## Horseshoe+ prior and only coefficients deemed significant by a two-means clustering (tuning parameter set at addpar) is included in the results. Can be used with prior="gaussian"
 
-out = CensSpBayesVS(Y=Y.obs,S= S.obs,X=cbind(X.obs,S.obs),
+outvs = CensSpBayesVS(Y=Y.obs,S= S.obs,X=cbind(X.obs,S.obs),
                   cutoff_Y=cutoff.Y.obs,
                   S_pred=S.pred,X_pred=c(X.pred,S.pred),
                   inla_mats=inla.mats,
@@ -141,8 +141,28 @@ out = CensSpBayesVS(Y=Y.obs,S= S.obs,X=cbind(X.obs,S.obs),
                   iters=200,burn=100,thin=2) ## Horseshoe+ prior and only coefficients with posterior inclusion probability bigger than addpar is included in the results. Can NOT be used with prior="gaussian"
 ```
 
-The addpar parameter has different meaning for different choices of \texttt{vss}. It gives the confidence coefficient for \texttt{vss="cr"}. It gives the posterior inclusion probability beyond which to include the covariates as significant for \texttt{vss="hsp"}. It gives the the tuning parameter value for two-means clustering required for the algorithm when \texttt{vss="2means"}. See Chapagain and Pati (2025) and Li and Pati (2017) for details.
+The addpar parameter has different meaning for different choices of <tt>vss</tt>. It gives the confidence coefficient for <tt>vss="cr"</tt>. It gives the posterior inclusion probability beyond which to include the covariates as significant for <tt>vss="hsp"</tt>. It gives the the tuning parameter value for two-means clustering required for the algorithm when <tt>vss="2means"</tt>. See Chapagain and Pati (2025) and Li and Pati (2017) for details.
 
+```{r,include=FALSE,echo=FALSE,eval=TRUE}
+outvs = CensSpBayesVS(Y=Y.obs,S= S.obs,X=cbind(X.obs,S.obs),
+                  cutoff_Y=cutoff.Y.obs,
+                  S_pred=S.pred,X_pred=cbind(X.pred,S.pred),
+                  inla_mats=inla.mats,
+                  rho_init=0.1, rho_upper=0.25,
+                  prior="hsp",
+                  vss="2means",
+                  addpar=20,
+                  iters=200,burn=100,thin=2) ## Horseshoe+ prior and only coefficients deemed significant by a two-means clustering (tuning parameter set at addpar) is included in the results. Can be used with prior="gaussian"
+```
+
+```{r,echo=TRUE,eval=TRUE}
+
+names(outvs)
+
+outvs$ind2inc ## Indices selected for beta
+
+outvs$theta[100,] ## 100th sample for beta. non-selected betas are zeroed out
+```
 
 # References
 
